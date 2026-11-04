@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense tracker</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+
+<body>
+    <section class="heading">
+        <h1>Expense tracker</h1>
+        <p>Track your daily spending</p>
+    </section>
+
+    <main>
+        <div class="container"> 
+
+        <!--Total Expenses-->
+        <div class=" totalcard">
+            <h2>Total Expenses</h2>
+            <p id="Total">KES 0.00</p>
+        </div>
+
+        <!--Expense Form-->
+        <div class="card">
+            <h2>Add Expense</h2>
+            <form id="expense form">
+                <label for="Description">Description</label>
+                <input type="text" id="Description" placeholder="e.g. Lunch" required>
+                <label for="" amount>amount</label>
+                <input type="number" id="amount" placeholder="e.g. 250" required>
+
+                <label for="category">category</label>
+                <select id="category" required>
+                    <option value="">Select category</option>
+                    <option value="food">food</option>
+                    <option value="transport">transport</option>
+                    <option value="shopping">shopping</option>
+                    <option value="bills">bills</option>
+                    <option value="other">other</option>
+                </select>
+                <button type="submit" class="button">Add expense</button>
+                <button type="submit" class="delete-btn">Add expense</button>
+
+            </form>
+        </div>
+        <!--Filter expenses-->
+        <div class="card">
+            <h2>Filter Expenses</h2>
+            <select id="Filter category">  
+            <option value="All">All categories</option>
+            <option value="food">food</option>
+            <option value="transport">transport</option>
+            <option value="shopping">shopping</option>
+            <option value="bills">bills</option>
+            <option value="other">other</option>
+             </select>
+        </div>
+     </div>
+    </main>
+    <footer>
+        <p>expense tracker copyright 2026</p><i class="fa-regular fa-copyright"></i>
+       
+    </footer>
+     <script src="script.js"></script>
+</body>
+
+</html>
