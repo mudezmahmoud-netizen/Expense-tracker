@@ -1,161 +1,97 @@
-class Expense {
-    constructor(id, description,amount,category) {
-        this.id = id;
-        this.description = description;
-        this.amount = Number(amount);
-        this.category = category;
-    }
-}
+import Expense from "./Expense.js";
+import ExpenseTracker from "./ExpenseTracker.js";
+import { Storage } from "./Storage.js";
 
-module.exports = Expense;
+const tracker = new ExpenseTracker();
 
+const form = document.getElementById("expense-form");
+const description = document.getElementById("description");
+const amount = document.getElementById("amount");
+const category = document.getElementById("category");
+const filterCategory = document.getElementById("filter-category");
+const expensesList = document.getElementById("expenses-list");
+const totalElement = document.getElementById("Total");
 
-class ExpenseTracker {
-    constructor() {
-        this.expenses = [];
-    }
+const savedExpenses = Storage.loadExpenses();
 
-    
-    addExpense(expense) {
-        this.expenses = [...this.expenses, expense];
-    }
+tracker.addMultipleExpenses(
+  ...savedExpenses.map(
+    (expense) =>
+      new Expense(
+        expense.id,
+        expense.description,
+        expense.amount,
+        expense.category,
+      ),
+  ),
+);
 
-    
-    addMultipleExpenses(...expenses) {
-        this.expenses = [...this.expenses, ...expenses];
-    }
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
 
-    
-    getExpenseDetails() {
-        return this.expenses.map(
-            ({ description, amount, category }) => ({
-                description,
-                amount,
-                category
-            })
-        );
-    }
+  const expense = new Expense(
+    crypto.randomUUID(),
+    description.value.trim(),
+    amount.value,
+    category.value,
+  );
 
-    
-    removeExpense(id) {
-        this.expenses = this.expenses.filter(
-            expense => expense.id !== id
-        );
-    }
+  tracker.addExpense(expense);
 
-    
-    filterByCategory(category) {
-        return this.expenses.filter(
-            expense => expense.category === category
-        );
-    }
+  Storage.saveExpenses(tracker.getExpenses());
 
-    
-    getTotalExpenses() {
-        return this.expenses.reduce(
-            (total, expense) => total + expense.amount,
-            0
-        );
-    }
+  form.reset();
 
-    
-    getExpenses() {
-        return [...this.expenses];
-    }
-}
-
-module.exports = ExpenseTracker;
-
-
-export class Storage {
-    static saveExpenses(expenses) {
-        localStorage.setItem(
-            "expenses",
-            JSON.stringify(expenses)
-        );
-    }
-
-    static loadExpenses() {
-        const data = localStorage.getItem("expenses");
-
-        return data ? JSON.parse(data) : [];
-    }
-}
-
-globalThis.localStorage = {
-    data: {},
-
-    setItem(key, value) {
-        this.data[key] = String(value);
-    },
-
-    getItem(key) {
-        return this.data[key] ?? null;
-    },
-
-    removeItem(key) {
-        delete this.data[key];
-    },
-
-    clear() {
-        this.data = {};
-    }
-};
-
-describe("ExpenseTracker Tests", () => {
-    let tracker;
-
-    beforeEach(() => {
-        localStorage.clear();
-
-        tracker = new ExpenseTracker();
-
-        tracker.addExpense(
-            new Expense(1, "Lunch", 250, "Food")
-        );
-
-        tracker.addExpense(
-            new Expense(2, "Bus Fare", 100, "Transport")
-        );
-
-        tracker.addExpense(
-            new Expense(3, "Dinner", 300, "Food")
-        );
-    });
-
-    
-    test("adds an expense", () => {
-        tracker.addExpense(
-            new Expense(4, "Shopping", 500, "Shopping")
-        );
-
-        expect(tracker.getExpenses()).toHaveLength(4);
-    });
-
-    
-    test("removes an expense", () => {
-        tracker.removeExpense(2);
-
-        expect(tracker.getExpenses()).toHaveLength(2);
-
-        expect(
-            tracker.getExpenses().some(expense => expense.id === 2)
-        ).toBe(false);
-    });
-
-    
-    test("calculates total expenses", () => {
-        expect(tracker.getTotalExpenses()).toBe(650);
-    });
-
-    
-    test("filters expenses by category", () => {
-        const foodExpenses = tracker.filterByCategory("Food");
-
-        expect(foodExpenses).toHaveLength(2);
-
-        expect(
-            foodExpenses.every(expense => expense.category === "Food")
-        ).toBe(true);
-    });
+  renderExpenses();
 });
+
+function renderExpenses() {
+  expensesList.innerHTML = "";
+
+  const selectedCategory = filterCategory.value;
+
+  const expenses =
+    selectedCategory === "All"
+      ? tracker.getExpenses()
+      : tracker.filterByCategory(selectedCategory);
+
+  expenses.forEach((expense) => {
+    const item = document.createElement("div");
+    item.className = "expense-item";
+
+    const details = document.createElement("div");
+
+    const title = document.createElement("h3");
+    title.textContent = expense.description;
+
+    const categoryText = document.createElement("p");
+    categoryText.textContent = expense.category;
+
+    const price = document.createElement("p");
+    price.textContent = `KES ${expense.amount.toFixed(2)}`;
+
+    details.append(title, categoryText, price);
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.className = "delete-btn";
+
+    deleteButton.addEventListener("click", () => {
+      tracker.removeExpense(expense.id);
+
+      Storage.saveExpenses(tracker.getExpenses());
+
+      renderExpenses();
+    });
+
+    item.append(details, deleteButton);
+    expensesList.appendChild(item);
+  });
+
+  totalElement.textContent = `KES ${tracker.getTotalExpenses().toFixed(2)}`;
+}
+
+filterCategory.addEventListener("change", renderExpenses);
+
+renderExpenses();
+
