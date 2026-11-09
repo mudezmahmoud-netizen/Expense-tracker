@@ -10,7 +10,6 @@ Expense Tracker is a simple web application that helps users manage their daily 
 - LocalStorage
 - Jest
 - Git and GitHub
-
 ## Features
 - Add expenses with descriptions, amounts, and categories.
 - Delete expenses.
@@ -34,6 +33,7 @@ Jest is used to test:
 - Removing expenses
 - Calculating total expenses
 - Filtering expenses by category
+-git clone, npm install, npm test.
 
 ## How to Run
 1. Clone the repository.
@@ -43,4 +43,4 @@ Jest is used to test:
 
 ## Author
 Mahmoud Mohamed
-<img width="1231" height="503" alt="image" src="https://github.com/user-attachments/assets/9fd9413e-53e2-4b19-beeb-66646e4648fd" />
+
