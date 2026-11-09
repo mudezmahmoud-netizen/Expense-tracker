@@ -1,56 +1,88 @@
+const ExpenseTracker = require("./ExpenseTracker");
+const Expense = require("./Expense");
+const Storage = require("./Storage");
 
-class ExpenseTracker {
-    constructor() {
-        this.expenses = [];
-    }
+describe("ExpenseTracker tests", () => {
 
-    
-    addExpense(expense) {
-        this.expenses = [...this.expenses, expense];
-    }
+    beforeEach(() => {
+        localStorage.clear();
+    });
 
-    
-    addMultipleExpenses(...expenses) {
-        this.expenses = [...this.expenses, ...expenses];
-    }
+    test("adds an expense", () => {
+        const tracker = new ExpenseTracker();
+        const expense = new Expense(1, "Lunch", 500, "Food");
 
-    
-    getExpenseDetails() {
-        return this.expenses.map(
-            ({ description, amount, category }) => ({
-                description,
-                amount,
-                category
-            })
+        tracker.addExpense(expense);
+
+        expect(tracker.getExpenses()).toHaveLength(1);
+    });
+
+    test("adds multiple expenses", () => {
+        const tracker = new ExpenseTracker();
+
+        tracker.addMultipleExpenses(
+            new Expense(1, "Lunch", 500, "Food"),
+            new Expense(2, "Bus", 100, "Transport")
         );
-    }
 
-    
-    removeExpense(id) {
-        this.expenses = this.expenses.filter(
-            expense => expense.id !== id
+        expect(tracker.getExpenses()).toHaveLength(2);
+    });
+
+    test("removes an expense", () => {
+        const tracker = new ExpenseTracker();
+        const expense = new Expense(1, "Lunch", 500, "Food");
+
+        tracker.addExpense(expense);
+        tracker.removeExpense(1);
+
+        expect(tracker.getExpenses()).toHaveLength(0);
+    });
+
+    test("filters expenses by category", () => {
+        const tracker = new ExpenseTracker();
+
+        tracker.addMultipleExpenses(
+            new Expense(1, "Lunch", 500, "Food"),
+            new Expense(2, "Bus", 100, "Transport")
         );
-    }
 
-    
-    filterByCategory(category) {
-        return this.expenses.filter(
-            expense => expense.category === category
+        expect(tracker.filterByCategory("Food")).toHaveLength(1);
+    });
+
+    test("calculates total expenses", () => {
+        const tracker = new ExpenseTracker();
+
+        tracker.addMultipleExpenses(
+            new Expense(1, "Lunch", 500, "Food"),
+            new Expense(2, "Bus", 100, "Transport")
         );
-    }
 
-    
-    getTotalExpenses() {
-        return this.expenses.reduce(
-            (total, expense) => total + expense.amount,
-            0
+        expect(tracker.getTotalExpenses()).toBe(600);
+    });
+
+    test("calculates today's expenses", () => {
+        const tracker = new ExpenseTracker();
+
+        tracker.addExpense(
+            new Expense(1, "Lunch", 500, "Food")
         );
-    }
+
+        expect(tracker.getTodayTotal()).toBe(500);
+    });
+
+    test("saves expenses to localStorage", () => {
+        const tracker = new ExpenseTracker();
+
+        tracker.addExpense(
+            new Expense(1, "Lunch", 500, "Food")
+        );
+
+        expect(Storage.loadExpenses()).toHaveLength(1);
+    });
+
+});
+
+
 
     
-    getExpenses() {
-        return [...this.expenses];
-    }
-}
-
-module.exports = ExpenseTracker;
+   
